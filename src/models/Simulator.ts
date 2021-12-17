@@ -1,10 +1,11 @@
-import mongoose from "mongoose";
-
-const { Schema } = mongoose;
+import mongoose, { Schema } from "mongoose";
 
 const schema = new Schema(
   {
-    profile_id: Schema.Types.ObjectId,
+    profileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Profile",
+    },
     dateRecorded: Date,
     cryptocurrency: String,
     euros: Number,
