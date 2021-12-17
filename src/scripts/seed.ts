@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
-import _ from "lodash";
 import { Profile } from "../models/Profile";
 import { Simulator } from "../models/Simulator";
 import { Favorite } from "../models/Favorite";
 import { DBURL } from "../config";
 
 (async () => {
-
   mongoose.connect(DBURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
