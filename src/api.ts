@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import mongoose from "mongoose";
 import { PORT, DBURL, CORS_ORIGINS } from "./config";
-import { errorLoggerMiddleware } from "./services/logger.service";
+import logger, { errorLoggerMiddleware } from "./services/logger.service";
 import { router as favoriteRouter } from "./routes/favorite.router";
 import { router as profileRouter } from "./routes/profile.router";
 import { router as simulatorRouter } from "./routes/simulator.router";
@@ -13,9 +13,21 @@ import { router as simulatorRouter } from "./routes/simulator.router";
  * database connection
  */
 mongoose
-  .connect(`${DBURL}`, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(`${DBURL}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log(`Connected to DB ${DBURL}`);
+
+    mongoose.connection.on("disconnected", () => {
+      logger.error("MongoDB disconnected");
+      process.exit(1);
+    });
+  })
+  .catch((err) => {
+    logger.error(err);
+    process.exit(1);
   });
 
 /**
