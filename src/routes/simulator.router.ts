@@ -6,6 +6,7 @@ import {
   SimulatorsOfProfileIndexValidator,
   SimulatorStoreValidator,
 } from "../validators/simulator.validators";
+import logger from "../services/logger.service";
 
 export const router = Router();
 
@@ -38,8 +39,6 @@ router.get(
       total,
     };
 
-    // console.log(simulator);
-
     res.json({ simulators, meta });
   }
 );
@@ -56,13 +55,9 @@ router.get(
       });
     }
 
-    // console.log("========== ");
-
     const { profileId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 10;
-
-    // console.log({ profileId });
 
     const query = { profileId };
 
@@ -103,13 +98,12 @@ router.post(
         profileId,
       };
 
-      // console.log(newData);
-
       const simulator = await Simulator.create(newData);
 
       res.status(201).json({ simulator, message: "simulator created" });
     } catch (e) {
-      res.status(500).json({ message: "server error" });
+      logger.error(e);
+      res.status(500).json({ message: "simulator didn't save" });
     }
   }
 );

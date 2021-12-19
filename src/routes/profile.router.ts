@@ -5,6 +5,7 @@ import {
   ProfileIndexValidator,
   ProfileStoreValidator,
 } from "../validators/profile.validators";
+import logger from "../services/logger.service";
 
 export const router = Router();
 
@@ -34,8 +35,6 @@ router.get("/api/v1/profiles", ProfileIndexValidator(), async (req, res) => {
     total,
   };
 
-  // console.log(profile);
-
   res.json({ profiles, meta });
 });
 
@@ -63,6 +62,7 @@ router.post("/api/v1/profiles", ProfileStoreValidator(), async (req, res) => {
 
     res.status(201).json({ profile, message: "profile created" });
   } catch (e) {
-    res.status(500).json({ message: "server error" });
+    logger.error(e);
+    res.status(500).json({ message: "profile didn't save" });
   }
 });

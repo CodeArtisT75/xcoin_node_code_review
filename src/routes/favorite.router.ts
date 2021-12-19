@@ -34,8 +34,6 @@ router.get("/api/v1/favorites", FavoriteIndexValidator(), async (req, res) => {
     total,
   };
 
-  // console.log(favorite);
-
   res.json({ favorites, meta });
 });
 
@@ -51,13 +49,9 @@ router.get(
       });
     }
 
-    // console.log(req.params);
-
     const { profileId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 10;
-
-    // console.log(query);
 
     const query = { profileId };
 

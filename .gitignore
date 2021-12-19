@@ -7,3 +7,9 @@ node_modules
 # editors
 .vscode
 .idea
+
+# log files
+/logs
+
+# build files
+dist
