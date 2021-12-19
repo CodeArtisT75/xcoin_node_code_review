@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { Favorite } from "../models/Favorite";
 import { validationResult } from "express-validator";
+import { Favorite } from "../models/Favorite";
 import {
   FavoriteIndexValidator,
-  FavoriteOfProfileIndexValidator,
+  FavoritesOfProfileIndexValidator,
 } from "../validators/favorite.validators";
 
 export const router = Router();
@@ -41,7 +41,7 @@ router.get("/api/v1/favorites", FavoriteIndexValidator(), async (req, res) => {
 
 router.get(
   "/api/v1/favorites/:profileId",
-  FavoriteOfProfileIndexValidator(),
+  FavoritesOfProfileIndexValidator(),
   async (req, res) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
@@ -54,12 +54,24 @@ router.get(
     // console.log(req.params);
 
     const { profileId } = req.params;
-    const query = { profileId };
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10;
 
     // console.log(query);
 
+    const query = { profileId };
+
     const favorites = await Favorite.find(query).select(["-profileId"]).lean();
 
-    res.json({ favorites });
+    const total = await Favorite.countDocuments(query).lean();
+    const lastPage = Math.ceil(total / perPage);
+    const meta = {
+      page,
+      perPage,
+      lastPage,
+      total,
+    };
+
+    res.json({ favorites, meta });
   }
 );
