@@ -15,8 +15,6 @@
     "express-winston": "^4.2.0",
     "faker": "^5.5.3",
     "helmet": "^4.6.0",
-    "lodash": "^4.17.21",
-    "luxon": "^1.26.0",
     "mongoose": "^5.12.7",
     "winston": "^3.3.3"
   },
