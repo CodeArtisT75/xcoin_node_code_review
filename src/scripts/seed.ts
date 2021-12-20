@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DateTime } from "luxon";
+import faker from "faker";
 import { Profile } from "../models/Profile";
 import { Simulator } from "../models/Simulator";
 import { Favorite } from "../models/Favorite";
@@ -12,30 +12,34 @@ import { DBURL } from "../config";
   });
 
   const profile = new Profile({
-    name: `String`,
-    nickname: `String`,
-    email: `String`,
-    capital: 123,
-    divisa: `String`,
-    preferredCryptocurrency: `String`,
+    name: faker.name.firstName(),
+    nickname: faker.name.firstName(),
+    email: faker.internet.email(),
+    capital: faker.datatype.number({ min: 0, max: 1000 }),
+    divisa: faker.random.word(),
+    preferredCryptocurrency: faker.random.alpha({ count: 3, upcase: true }),
   });
   await profile.save();
 
   const simulator = new Simulator({
     profileId: profile.id,
-    name: `String`,
-    startDate: DateTime.local(2021, 5, 1),
-    checkDate: DateTime.local(2021, 5, 1),
-    cryptocurrency: `String`,
-    cryptoPriceStart: 123,
-    cryptoPriceCheck: 123,
+    name: faker.random.word(),
+    startDate: faker.date.recent(),
+    checkDate: faker.date.recent(),
+    cryptocurrency: faker.random.alpha({ count: 3, upcase: true }),
+    cryptoPriceStart: faker.datatype.number({ min: 100, max: 1000 }),
+    cryptoPriceCheck: faker.datatype.number({ min: 100, max: 1000 }),
   });
   await simulator.save();
 
   const favorite = new Favorite({
     profileId: profile.id,
-    name: `String`,
-    favorites: [`String`, `String`, `String`],
+    name: faker.random.word(),
+    favorites: [
+      faker.random.alpha({ count: 3, upcase: true }),
+      faker.random.alpha({ count: 3, upcase: true }),
+      faker.random.alpha({ count: 3, upcase: true }),
+    ],
   });
   await favorite.save();
 
