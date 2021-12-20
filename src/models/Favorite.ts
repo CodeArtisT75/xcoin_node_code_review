@@ -1,14 +1,13 @@
-import mongoose from "mongoose";
-
-const { Schema } = mongoose;
+import mongoose, { Schema } from "mongoose";
 
 const schema = new Schema(
   {
-    profile_id: String,
+    profileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Profile",
+    },
     name: String,
-    favorite1: String,
-    favorite2: String,
-    favorite3: String,
+    favorites: [String],
   },
   {
     timestamps: true,

@@ -1,51 +1,47 @@
 import mongoose from "mongoose";
-import _ from "lodash";
+import faker from "faker";
 import { Profile } from "../models/Profile";
 import { Simulator } from "../models/Simulator";
 import { Favorite } from "../models/Favorite";
 import { DBURL } from "../config";
 
 (async () => {
-
-  mongoose.connect(DBURL, {
+  await mongoose.connect(DBURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
   const profile = new Profile({
-    name: `String`,
-    email: `String`,
-    capital: `123`,
-    divisa: `String`,
-    prefered_cryptocurrency: `String`,
+    name: faker.name.firstName(),
+    nickname: faker.name.firstName(),
+    email: faker.internet.email(),
+    capital: faker.datatype.number({ min: 0, max: 1000 }),
+    divisa: faker.random.word(),
+    preferredCryptocurrency: faker.random.alpha({ count: 3, upcase: true }),
   });
   await profile.save();
 
-  const query = { _id: "6093abb3dfd9da1deeae56f2" };
-  const idProfile = await Profile.findOne(query).then((e) => {
-    return e?._id;
-  });
-
   const simulator = new Simulator({
-    profile_id: idProfile,
-    name: `String`,
-    start_date: `01/05/2021`,
-    check_date: `01/05/2021`,
-    cryptocurrency: `String`,
-    divisa: `String`,
-    Crypto_price_start: `123`,
-    Crypto_price_check: `123`,
+    profileId: profile.id,
+    name: faker.random.word(),
+    startDate: faker.date.recent(),
+    checkDate: faker.date.recent(),
+    cryptocurrency: faker.random.alpha({ count: 3, upcase: true }),
+    cryptoPriceStart: faker.datatype.number({ min: 100, max: 1000 }),
+    cryptoPriceCheck: faker.datatype.number({ min: 100, max: 1000 }),
   });
   await simulator.save();
 
   const favorite = new Favorite({
-    profile_id: idProfile,
-    name: `String`,
-    favorite1: `String`,
-    favorite2: `String`,
-    favorite3: `String`,
+    profileId: profile.id,
+    name: faker.random.word(),
+    favorites: [
+      faker.random.alpha({ count: 3, upcase: true }),
+      faker.random.alpha({ count: 3, upcase: true }),
+      faker.random.alpha({ count: 3, upcase: true }),
+    ],
   });
   await favorite.save();
 
-  mongoose.disconnect();
+  await mongoose.disconnect();
 })();

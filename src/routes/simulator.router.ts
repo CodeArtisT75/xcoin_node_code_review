@@ -1,36 +1,109 @@
-import express from "express";
 import { Router } from "express";
+import { validationResult } from "express-validator";
 import { Simulator } from "../models/Simulator";
-import cors from "cors";
+import {
+  SimulatorIndexValidator,
+  SimulatorsOfProfileIndexValidator,
+  SimulatorStoreValidator,
+} from "../validators/simulator.validators";
+import logger from "../services/logger.service";
 
-var app = express();
-app.use(cors());
+export const router = Router();
 
-export var router = express.Router();
+router.get(
+  "/api/v1/simulators",
+  SimulatorIndexValidator(),
+  async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({
+        message: "validation error",
+        errors: validationErrors.array({ onlyFirstError: true }),
+      });
+    }
 
-router.get("/api/simulator", async (req, res) => {
-  var simulator = await Simulator.find().lean();
-  console.log(simulator);
-  res.json({ simulator });
-});
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10;
 
-router.get("/api/simulator/:profile_id", async (req, res) => {
-  console.log("========== ");
-  let query = {};
-  var { profile_id } = req.params;
-  console.log({ profile_id });
-  query = { profile_id };
-  var data = await Simulator.find(query);
-  res.json(data);
-});
+    const simulators = await Simulator.find()
+      .limit(perPage)
+      .skip(perPage * (page - 1))
+      .lean();
 
-router.post("/api/simulator/:profile_id", async (req, res) => {
-  var { profile_id } = req.params;
-  var newData = {
-    ...req.body,
-    profile_id,
-  };
-  console.log(newData);
-  var simulator = await Simulator.create(newData);
-  res.json(simulator);
-});
+    const total = await Simulator.countDocuments().lean();
+    const lastPage = Math.ceil(total / perPage);
+    const meta = {
+      page,
+      perPage,
+      lastPage,
+      total,
+    };
+
+    res.json({ simulators, meta });
+  }
+);
+
+router.get(
+  "/api/v1/simulators/:profileId",
+  SimulatorsOfProfileIndexValidator(),
+  async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({
+        message: "validation error",
+        errors: validationErrors.array({ onlyFirstError: true }),
+      });
+    }
+
+    const { profileId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10;
+
+    const query = { profileId };
+
+    const simulators = await Simulator.find(query)
+      .select(["-profileId"])
+      .limit(perPage)
+      .skip(perPage * (page - 1));
+
+    const total = await Simulator.countDocuments(query).lean();
+    const lastPage = Math.ceil(total / perPage);
+    const meta = {
+      page,
+      perPage,
+      lastPage,
+      total,
+    };
+
+    res.json({ simulators, meta });
+  }
+);
+
+router.post(
+  "/api/v1/simulators/:profileId",
+  SimulatorStoreValidator(),
+  async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({
+        message: "validation error",
+        errors: validationErrors.array({ onlyFirstError: true }),
+      });
+    }
+
+    try {
+      const { profileId } = req.params;
+      const newData = {
+        ...req.body,
+        profileId,
+      };
+
+      const simulator = await Simulator.create(newData);
+
+      res.status(201).json({ simulator, message: "simulator created" });
+    } catch (e) {
+      logger.error(e);
+      res.status(500).json({ message: "simulator didn't save" });
+    }
+  }
+);

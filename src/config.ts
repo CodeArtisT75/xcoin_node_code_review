@@ -7,7 +7,7 @@ const checkEnv = (envVar: string, defaultValue?: string) => {
     if (defaultValue) {
       return defaultValue;
     }
-    throw new Error(`Please define the Enviroment variable"${envVar}"`);
+    throw new Error(`Please define the Environment variable"${envVar}"`);
   } else {
     return process.env[envVar] as string;
   }

@@ -1,14 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const { Schema } = mongoose;
-
-const schema = new Schema({
-  name: String,
-  nickname: String,
-  email: String,
-  capital: Number,
-  divisa: String,
-  prefered_cryptocurrency: String,
-});
+const schema = new Schema(
+  {
+    name: String,
+    nickname: String,
+    email: String,
+    capital: {
+      type: Number,
+      default: 0,
+    },
+    divisa: String,
+    preferredCryptocurrency: String,
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export const Profile = mongoose.model("Profile", schema);
